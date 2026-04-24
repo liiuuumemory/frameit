@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frame It — A photo border tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-name">Frame It</span>
+    <span class="brand-sep">·</span>
+    <span class="brand-tag">a quiet border for photographs</span>
+  </div>
+  <div class="topbar-meta">
+    <span class="meta-item" id="metaCount">no files</span>
+    <button type="button" class="panel-toggle" id="panelToggle" aria-label="Toggle settings">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<main class="layout" id="layout">
+
+  <!-- ============== 左侧控制面板 ============== -->
+  <aside class="panel" id="panel">
+
+    <section class="group">
+      <div class="group-head">
+        <span class="group-num">01</span>
+        <h2 class="group-title">Source</h2>
+      </div>
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="fileInput" accept="image/jpeg,image/png,image/tiff,image/webp" multiple hidden>
+        <div class="dropzone-inner">
+          <div class="dropzone-text">Drop photos here</div>
+          <div class="dropzone-sub">or click to select  ·  jpg, png, tiff, webp</div>
+        </div>
+      </div>
+      <ul class="filelist" id="filelist"></ul>
+    </section>
+
+    <section class="group">
+      <div class="group-head">
+        <span class="group-num">02</span>
+        <h2 class="group-title">Aspect</h2>
+      </div>
+      <div class="row">
+        <label class="lbl">Ratio</label>
+        <div class="ratio-input">
+          <input type="number" id="ratioW" min="1" max="100" value="3" class="num">
+          <span class="ratio-sep">:</span>
+          <input type="number" id="ratioH" min="1" max="100" value="2" class="num">
+        </div>
+        <div class="ratio-presets">
+          <button type="button" data-w="1" data-h="1" class="preset">1:1</button>
+          <button type="button" data-w="4" data-h="5" class="preset">4:5</button>
+          <button type="button" data-w="3" data-h="2" class="preset">3:2</button>
+          <button type="button" data-w="4" data-h="3" class="preset">4:3</button>
+          <button type="button" data-w="16" data-h="9" class="preset">16:9</button>
+        </div>
+      </div>
+      <div class="row">
+        <label class="lbl">Min border (W)</label>
+        <div class="slider-pair">
+          <input type="range" id="borderW" min="0" max="0.5" step="0.01" value="0.08">
+          <span class="readout mono" id="borderWVal">0.08</span>
+        </div>
+      </div>
+      <div class="row">
+        <label class="lbl">Min border (H)</label>
+        <div class="slider-pair">
+          <input type="range" id="borderH" min="0" max="0.5" step="0.01" value="0.12">
+          <span class="readout mono" id="borderHVal">0.12</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="group">
+      <div class="group-head">
+        <span class="group-num">03</span>
+        <h2 class="group-title">Inscription</h2>
+        <span class="group-hint">— four corners of text</span>
+      </div>
+
+      <!-- corner rows are rendered by JS from this template -->
+      <div id="cornerContainer"></div>
+
+      <details class="help">
+        <summary>Template syntax</summary>
+        <div class="help-body">
+          Use <code>{Name}</code> placeholders. Available: <code>{Shutter}</code>, <code>{Aperture}</code>, <code>{ISO}</code>, <code>{FocalLength}</code>, <code>{Camera}</code>, <code>{Make}</code>, <code>{Model}</code>, <code>{Lens}</code>, <code>{ExposureProgram}</code>, <code>{Date}</code>, <code>{WhiteBalance}</code>, <code>{MeteringMode}</code>, <code>{Flash}</code>. Use <code>\n</code> for line break.
+        </div>
+      </details>
+    </section>
+
+    <section class="group">
+      <div class="group-head">
+        <span class="group-num">04</span>
+        <h2 class="group-title">Logo</h2>
+        <span class="group-hint">— stamped before bottom-right</span>
+      </div>
+
+      <div class="row">
+        <label class="cb">
+          <input type="checkbox" id="logoShow">
+          <span>Show brand logo</span>
+        </label>
+      </div>
+
+      <div class="row">
+        <label class="lbl">Brand</label>
+        <select id="logoBrand" class="select">
+          <option value="__auto__">Auto (detect from EXIF)</option>
+          <option value="__none__">None</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <label class="lbl">Size</label>
+        <div class="slider-pair">
+          <input type="range" id="logoSize" min="0.6" max="2.5" step="0.05" value="1.2">
+          <span class="readout mono" id="logoSizeVal">1.2×</span>
+        </div>
+      </div>
+
+      <div class="row">
+        <label class="cb">
+          <input type="checkbox" id="logoTint" checked>
+          <span>Tint with text color</span>
+        </label>
+      </div>
+
+      <div class="row">
+        <label class="lbl">Upload custom</label>
+        <div class="logo-upload">
+          <input type="text" id="logoUploadName" class="text-input" placeholder="Brand name (e.g., Mamiya)">
+          <button type="button" id="logoUploadBtn" class="btn btn-mini">Upload SVG / PNG</button>
+          <input type="file" id="logoUploadFile" accept=".svg,.png" hidden>
+        </div>
+        <div class="font-status mono" id="logoStatus"></div>
+      </div>
+    </section>
+
+    <section class="group">
+      <div class="group-head">
+        <span class="group-num">05</span>
+        <h2 class="group-title">Style</h2>
+      </div>
+
+      <div class="row">
+        <label class="lbl">Background</label>
+        <div class="color-pair">
+          <input type="color" id="bgColor" value="#faf7f2">
+          <span class="readout mono" id="bgColorVal">#faf7f2</span>
+        </div>
+      </div>
+
+      <div class="row">
+        <label class="lbl">Text color</label>
+        <div class="color-pair">
+          <input type="color" id="fgColor" value="#1c1b19">
+          <span class="readout mono" id="fgColorVal">#1c1b19</span>
+        </div>
+      </div>
+
+      <div class="row">
+        <label class="lbl">Text size</label>
+        <div class="slider-pair">
+          <input type="range" id="textSize" min="0.05" max="0.5" step="0.01" value="0.18">
+          <span class="readout mono" id="textSizeVal">0.18</span>
+        </div>
+      </div>
+
+      <div class="row">
+        <label class="lbl">Font</label>
+        <select id="fontSelect" class="select">
+          <option value="serif">System Serif</option>
+          <option value="sans-serif">System Sans</option>
+          <option value="monospace">System Mono</option>
+          <option value="'EB Garamond', serif">EB Garamond</option>
+          <option value="'IBM Plex Sans', sans-serif">IBM Plex Sans</option>
+          <option value="'IBM Plex Mono', monospace">IBM Plex Mono</option>
+          <option value="Georgia, serif">Georgia</option>
+          <option value="'Times New Roman', serif">Times New Roman</option>
+          <option value="Helvetica, Arial, sans-serif">Helvetica</option>
+          <option value="'Courier New', monospace">Courier</option>
+          <option value="__custom__">— Upload custom font —</option>
+        </select>
+        <input type="file" id="fontFile" accept=".ttf,.otf,.woff,.woff2" hidden>
+        <div class="font-status mono" id="fontStatus"></div>
+      </div>
+    </section>
+
+    <section class="group">
+      <div class="group-head">
+        <span class="group-num">06</span>
+        <h2 class="group-title">Export</h2>
+      </div>
+      <div class="row">
+        <label class="lbl">Quality</label>
+        <div class="slider-pair">
+          <input type="range" id="quality" min="60" max="100" step="1" value="92">
+          <span class="readout mono" id="qualityVal">92</span>
+        </div>
+      </div>
+      <div class="row">
+        <label class="lbl">Max output size</label>
+        <select id="maxSize" class="select">
+          <option value="0">Original resolution</option>
+          <option value="16">16 MP (recommended on phones)</option>
+          <option value="12">12 MP</option>
+          <option value="8">8 MP (web-ready)</option>
+          <option value="4">4 MP (social media)</option>
+        </select>
+        <div class="hint-small mono" id="maxSizeHint"></div>
+      </div>
+      <div class="export-actions">
+        <button type="button" id="downloadOne" class="btn btn-primary">Download current</button>
+        <button type="button" id="downloadAll" class="btn">Download all (zip)</button>
+      </div>
+      <div class="progress" id="progress" hidden>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-text mono" id="progressText">0 / 0</div>
+        <div class="progress-current mono" id="progressCurrent"></div>
+      </div>
+    </section>
+
+  </aside>
+
+  <!-- ============== 右侧预览区 ============== -->
+  <section class="stage">
+    <div class="stage-inner">
+      <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="previewCanvas"></canvas>
+        <div class="canvas-empty" id="canvasEmpty">
+          <div class="empty-mark">◯</div>
+          <div class="empty-line">No photo loaded</div>
+          <div class="empty-sub">Drop an image into the left panel to begin.</div>
+        </div>
+      </div>
+      <div class="exif-tray mono" id="exifTray" hidden>
+        <span class="exif-pill" id="exifShutter"></span>
+        <span class="exif-pill" id="exifAperture"></span>
+        <span class="exif-pill" id="exifIso"></span>
+        <span class="exif-pill" id="exifFocal"></span>
+        <span class="exif-pill" id="exifCamera"></span>
+        <span class="exif-pill" id="exifLens"></span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="bottombar mono">
+  <span>Local only — photos never leave the browser.</span>
+  <span class="footer-sep">·</span>
+  <span id="hintDesktop">Ctrl+scroll to zoom · ⌘/Ctrl+S to download</span>
+  <span id="hintMobile" hidden>Pinch to zoom · double-tap to reset</span>
+</footer>
+
+<!-- libraries (local, no CDN) -->
+<script src="vendor/exifr.umd.js"></script>
+<script src="vendor/jszip.min.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+[
+  { "name": "Contax",     "matches": ["contax"],                       "file": "contax.svg" },
+  { "name": "Fujifilm",   "matches": ["fujifilm", "fuji"],              "file": "fujifilm.svg" },
+  { "name": "Nikon",      "matches": ["nikon"],                         "file": "nikon.svg" },
+  { "name": "Canon",      "matches": ["canon"],                         "file": "canon.svg" },
+  { "name": "Sony",       "matches": ["sony"],                          "file": "sony.svg" },
+  { "name": "Leica",      "matches": ["leica"],                         "file": "leica.svg" },
+  { "name": "Rollei",     "matches": ["rollei"],                        "file": "rollei.svg" },
+  { "name": "Hasselblad", "matches": ["hasselblad"],                    "file": "hasselblad.svg" },
+  { "name": "Olympus",    "matches": ["olympus", "om digital"],         "file": "olympus.svg" },
+  { "name": "Pentax",     "matches": ["pentax"],                        "file": "pentax.svg" },
+  { "name": "Ricoh",      "matches": ["ricoh"],                         "file": "ricoh.svg" },
+  { "name": "Panasonic",  "matches": ["panasonic", "lumix"],            "file": "panasonic.svg" },
+  { "name": "Mamiya",     "matches": ["mamiya"],                        "file": "mamiya.svg" }
+]
